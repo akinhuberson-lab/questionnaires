@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Questionnaire de cadrage — Site web</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#10233F;
+    --navy-2:#173257;
+    --paper:#F6F5F1;
+    --card:#FFFFFF;
+    --amber:#EFA23C;
+    --amber-dark:#C97F1F;
+    --ink:#181B20;
+    --muted:#68707C;
+    --line:#E4E1D8;
+    --breaker-off:#D8D4C8;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.5;
+    padding-bottom:110px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+
+  /* ---- Header ---- */
+  header.top{
+    background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;
+    padding:36px 0 30px;
+    border-bottom:4px solid var(--amber);
+  }
+  header.top .eyebrow{
+    font-family:'Space Grotesk',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:11.5px;
+    color:var(--amber);
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  header.top h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(24px,4vw,32px);
+    font-weight:700;
+    margin:0 0 8px;
+    letter-spacing:-.01em;
+  }
+  header.top p{
+    margin:0;
+    color:#C7D0DE;
+    font-size:14.5px;
+    max-width:56ch;
+  }
+
+  /* ---- Breaker progress strip (signature element) ---- */
+  .breaker-panel{
+    max-width:760px;
+    margin:-20px auto 0;
+    padding:0 20px;
+  }
+  .breaker-strip{
+    background:var(--navy);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    display:flex;
+    gap:6px;
+    align-items:center;
+    box-shadow:0 8px 24px -10px rgba(16,35,63,.45);
+  }
+  .breaker{
+    flex:1;
+    height:22px;
+    border-radius:3px;
+    background:var(--breaker-off);
+    position:relative;
+    transition:background .25s ease, box-shadow .25s ease;
+  }
+  .breaker::after{
+    content:"";
+    position:absolute;
+    top:3px; bottom:3px; left:3px;
+    width:6px;
+    border-radius:2px;
+    background:rgba(0,0,0,.15);
+  }
+  .breaker.on{
+    background:var(--amber);
+    box-shadow:0 0 0 2px rgba(239,162,60,.25), 0 0 10px rgba(239,162,60,.55);
+  }
+  .breaker.on::after{ background:rgba(0,0,0,.25); }
+  .breaker-label{
+    font-family:'Space Grotesk',sans-serif;
+    color:#8FA0BC;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    padding-right:10px;
+    border-right:1px solid rgba(255,255,255,.15);
+    margin-right:4px;
+  }
+
+  /* ---- Sections ---- */
+  main{padding-top:30px;}
+  .info-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 24px 8px;
+    margin-bottom:26px;
+  }
+  .info-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 18px;
+  }
+  .info-grid .full{grid-column:1/-1;}
+  section.q-section{
+    margin-bottom:26px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px 10px;
+  }
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .sec-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:#fff;
+    background:var(--navy);
+    border-radius:5px;
+    padding:3px 8px;
+    flex-shrink:0;
+  }
+  .sec-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--navy);
+    margin:0;
+  }
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .field .hint{
+    display:block;
+    font-weight:400;
+    font-size:12.5px;
+    color:var(--muted);
+    font-style:italic;
+    margin-top:3px;
+  }
+  input[type=text], input[type=tel], input[type=email], textarea{
+    width:100%;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    background:#FCFBF9;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:10px 12px;
+    resize:vertical;
+    transition:border-color .15s, background .15s;
+  }
+  textarea{min-height:64px;}
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--amber-dark);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(239,162,60,.18);
+  }
+  input.required-empty, textarea.required-empty{
+    border-color:#C0473C;
+    background:#FCF3F2;
+  }
+
+  /* ---- Choix (boutons) et questions conditionnelles ---- */
+  .field fieldset{border:0;padding:0;margin:0;min-width:0;}
+  .field legend{
+    display:block;
+    padding:0;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .choice-group{display:grid;gap:10px;margin-top:8px;}
+  .field label.choice{
+    display:flex;
+    margin-bottom:0;
+    gap:12px;
+    align-items:flex-start;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    background:#FCFBF9;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .choice:hover{border-color:var(--amber-dark);}
+  .choice input{margin:3px 0 0;accent-color:var(--amber-dark);width:17px;height:17px;flex-shrink:0;}
+  .choice:has(input:checked){
+    border-color:var(--amber-dark);
+    background:#FBF4E7;
+    box-shadow:inset 0 0 0 1px var(--amber-dark);
+  }
+  .choice-title{display:block;font-weight:600;font-size:14px;color:var(--ink);}
+  .choice-desc{display:block;font-weight:400;font-size:12.8px;color:var(--muted);margin-top:2px;}
+  .field.followup{margin-left:14px;padding-left:14px;border-left:3px solid var(--amber);}
+  .field[hidden]{display:none;}
+
+  /* ---- Submit bar ---- */
+  .submit-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:var(--navy);
+    border-top:3px solid var(--amber);
+    padding:14px 20px;
+    display:flex;
+    justify-content:center;
+    z-index:20;
+  }
+  .submit-bar-inner{
+    max-width:760px;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  #status-msg{
+    color:#C7D0DE;
+    font-size:13px;
+    max-width:340px;
+  }
+  #status-msg.error{color:#F3A79E;font-weight:600;}
+  button#send-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    color:var(--navy);
+    background:var(--amber);
+    border:none;
+    border-radius:7px;
+    padding:13px 22px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s, transform .1s;
+  }
+  button#send-btn:hover{background:#F5B357;}
+  button#send-btn:active{transform:translateY(1px);}
+
+  /* ---- Success overlay ---- */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(16,35,63,.72);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .overlay-card{
+    background:#fff;
+    border-radius:12px;
+    max-width:420px;
+    padding:28px 26px;
+    text-align:left;
+  }
+  .overlay-card h2{
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--navy);
+    font-size:19px;
+    margin:0 0 10px;
+  }
+  .overlay-card ol{
+    margin:0 0 18px;
+    padding-left:20px;
+    color:var(--ink);
+    font-size:14px;
+  }
+  .overlay-card li{margin-bottom:6px;}
+  .overlay-card button{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:7px;
+    padding:10px 18px;
+    cursor:pointer;
+    font-size:13.5px;
+  }
+
+  @media (max-width:560px){
+    .info-grid{grid-template-columns:1fr;}
+    .submit-bar-inner{flex-direction:column;align-items:stretch;}
+    #status-msg{max-width:none;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Cadrage projet — site web vitrine SEO de base</p>
+    <h1>Parlons de votre activité</h1>
+    <p>Ce questionnaire nous permet de définir précisément l'objectif, le contenu et la structure de votre futur site. Comptez environ 10 à 15 minutes.</p>
+  </div>
+</header>
+
+<div class="breaker-panel">
+  <div class="breaker-strip" id="breaker-strip">
+    <span class="breaker-label">Progression</span>
+    <div class="breaker" data-breaker="0"></div>
+    <div class="breaker" data-breaker="1"></div>
+    <div class="breaker" data-breaker="2"></div>
+    <div class="breaker" data-breaker="3"></div>
+    <div class="breaker" data-breaker="4"></div>
+    <div class="breaker" data-breaker="5"></div>
+    <div class="breaker" data-breaker="6"></div>
+    <div class="breaker" data-breaker="7"></div>
+    <div class="breaker" data-breaker="8"></div>
+    <div class="breaker" data-breaker="9"></div>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div class="info-card" data-breaker-index="0">
+    <div class="sec-head">
+      <span class="sec-num">Contact</span>
+      <p class="sec-title">Vos coordonnées</p>
+    </div>
+    <div class="info-grid">
+      <div class="field">
+        <label for="f-entreprise">Nom de l'entreprise *</label>
+        <input type="text" id="f-entreprise" required>
+      </div>
+      <div class="field">
+        <label for="f-contact">Nom du contact *</label>
+        <input type="text" id="f-contact" required>
+      </div>
+      <div class="field">
+        <label for="f-tel">Téléphone / WhatsApp *</label>
+        <input type="tel" id="f-tel" required>
+      </div>
+      <div class="field">
+        <label for="f-email">Adresse email</label>
+        <input type="email" id="f-email">
+      </div>
+      <div class="field">
+        <label for="f-ville">Ville / zone d'activité</label>
+        <input type="text" id="f-ville" placeholder="Ex. Calavi, Cotonou, Bénin">
+      </div>
+      <div class="field">
+        <label for="f-secteur">Secteur d'activité</label>
+        <input type="text" id="f-secteur" placeholder="Ex. électricité, restauration, conseil...">
+      </div>
+    </div>
+  </div>
+
+  <form id="q-form"></form>
+
+</main>
+
+<div class="submit-bar">
+  <div class="submit-bar-inner">
+    <span id="status-msg">Vos réponses restent sur cet appareil tant que vous n'avez pas cliqué sur Envoyer.</span>
+    <button id="send-btn" type="button">Télécharger le PDF et envoyer</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <h2>PDF téléchargé ✓</h2>
+    <ol>
+      <li>Votre boîte mail va s'ouvrir avec un message pré-rempli.</li>
+      <li>Joignez le fichier PDF qui vient d'être téléchargé (glisser-déposer ou bouton « joindre »).</li>
+      <li>Vérifiez, puis cliquez sur Envoyer dans votre messagerie.</li>
+    </ol>
+    <button id="overlay-close">Compris</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION — à adapter avant diffusion au client
+// ============================================================
+const DEST_EMAIL   = "akinhuberson@gmail.com"; // email de réception des questionnaires
+const EMAIL_SUBJECT_PREFIX = "Cadrage site web —";
+const PDF_TITLE = "Cadrage projet — site web vitrine SEO de base";
+
+// ============================================================
+// CONTENU DU QUESTIONNAIRE
+// ============================================================
+const SECTIONS = [
+  {
+    title: "Objectif principal du site",
+    items: [
+      { id:"q1_1", q:"Quel est le rôle principal du site : générer des demandes/devis, vendre en ligne, informer et rassurer, recruter, ou autre chose ?" },
+      { id:"q1_2", q:"Quel est l'objectif n°1 à atteindre dans les 6 premiers mois après la mise en ligne ?" },
+    ]
+  },
+  {
+    title: "Activité et offre",
+    items: [
+      { id:"q2_1", q:"Décrivez votre activité principale (produits et/ou services proposés)." },
+      { id:"q2_2", q:"Parmi tout ce que vous proposez, quelles sont les 3 à 5 offres à mettre en avant en priorité sur le site ? Pour chacune, précisez si possible le prix, le délai et la garantie." },
+    ]
+  },
+  {
+    title: "Cible et zone géographique",
+    items: [
+      { id:"q3_1", q:"Qui sont vos clients : particuliers, entreprises, ou les deux ?" },
+      { id:"q3_2", q:"Quelle est votre zone d'intervention ou de livraison (locale, nationale, internationale) ?" },
+    ]
+  },
+  {
+    title: "Preuves et réassurance",
+    items: [
+      { id:"q4_1", q:"Avez-vous des photos, réalisations ou un portfolio utilisables sur le site ?" },
+      { id:"q4_2", q:"Avez-vous des témoignages clients, certifications ou qualifications professionnelles ?" },
+      { id:"q4_3", q:"Depuis combien de temps l'activité existe-t-elle ?" },
+    ]
+  },
+  {
+    title: "Contact et rendez-vous",
+    items: [
+      { id:"q5_1", q:"Quel canal doit être mis en avant en priorité : téléphone, WhatsApp, formulaire de contact/devis ou email ?" },
+      { id:"q5_2", type:"choice", q:"Si vos clients viennent sur rendez-vous : quelle solution choisissez-vous pour la prise de rendez-vous sur le site ?", hint:"Si votre activité ne fonctionne pas sur rendez-vous, passez cette question.", options:[
+        { value:"classique", label:"Formulaire de contact classique", desc:"Le client envoie une demande ; elle arrive par email ou WhatsApp, et vous le recontactez pour fixer l'heure. Inclus dans le site." },
+        { value:"rdv-express", label:"Rendez-vous express", desc:"Logiciel de gestion des rendez-vous, en semi-automatique. Le client réserve en ligne un créneau libre ; vous suivez tous vos rendez-vous, y compris ceux pris par téléphone, dans votre espace de gestion ; la veille, chaque rappel WhatsApp est prêt et vous l'envoyez en un clic. Option avec abonnement, tarif indiqué dans le devis." },
+      ]},
+      { id:"q5_2a", q:"Comment les rendez-vous sont-ils gérés aujourd'hui (agenda papier, logiciel, téléphone) ?", showIf:{ id:"q5_2", value:"rdv-express" } },
+      { id:"q5_2b", q:"Quels types de rendez-vous proposer en ligne, avec leur durée ?", hint:"Ex. visite technique 1 h, première consultation 30 min.", showIf:{ id:"q5_2", value:"rdv-express" } },
+      { id:"q5_2c", q:"Qui reçoit les clients, quels jours et à quelles heures ?", showIf:{ id:"q5_2", value:"rdv-express" } },
+      { id:"q5_2d", q:"Qui enverra les rappels la veille, et depuis quel numéro WhatsApp ?", showIf:{ id:"q5_2", value:"rdv-express" } },
+    ]
+  },
+  {
+    title: "Activités complémentaires",
+    items: [
+      { id:"q6_1", q:"Avez-vous des activités annexes à intégrer au site (boutique en ligne, formation, abonnement, contenu payant, etc.) ? Si oui, lesquelles ?" },
+      { id:"q6_2", q:"Si oui, avez-vous déjà un lien, une plateforme ou un support existant pour cette activité ?" },
+    ]
+  },
+  {
+    title: "Budget, délai et maintenance",
+    items: [
+      { id:"q7_1", q:"Quel est le budget disponible pour ce projet ?" },
+      { id:"q7_2", q:"Quel est le délai souhaité de mise en ligne ?" },
+      { id:"q7_3", q:"Qui alimentera le site après le lancement (actualités, nouvelles réalisations) ?" },
+      { id:"q7_4", q:"Avez-vous déjà un nom de domaine ou un hébergement ?" },
+    ]
+  },
+  {
+    title: "Identité visuelle et contenu existant",
+    items: [
+      { id:"q8_1", q:"Le logo actuel est-il définitif, ou doit-il évoluer ?" },
+      { id:"q8_2", q:"Avez-vous d'autres visuels ou textes déjà prêts, réutilisables pour le site ?" },
+    ]
+  },
+  {
+    title: "Référencement (SEO de base)",
+    items: [
+      { id:"q9_1", q:"Quand un client vous cherche sur Google, quels mots utiliserait-il selon vous ? (ex. « électricien Calavi », « installation solaire Cotonou »)" },
+      { id:"q9_2", q:"Avez-vous déjà une fiche Google Business Profile (Google Maps) pour votre activité ? Si oui, sous quel nom ?" },
+      { id:"q9_3", q:"Connaissez-vous des concurrents déjà bien positionnés sur Google pour votre activité ? Lesquels ?" },
+      { id:"q9_4", q:"Quels quartiers ou villes précis souhaitez-vous cibler en priorité (le SEO local se construit sur des zones précises, pas juste un pays) ?" },
+    ]
+  },
+];
+
+// ============================================================
+// RENDU DU FORMULAIRE
+// ============================================================
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Une question = zone de texte, ou choix par boutons (type:"choice").
+// Une question avec showIf n'apparaît que si le choix indiqué est coché.
+function renderItem(item, section){
+  const field = document.createElement('div');
+  field.className = 'field' + (item.showIf ? ' followup' : '');
+  if(item.showIf){
+    field.dataset.showIf = item.showIf.id;
+    field.dataset.showValue = item.showIf.value;
+    field.hidden = true;
+  }
+  const hint = item.hint ? `<span class="hint">${escapeHtml(item.hint)}</span>` : '';
+  if(item.type === 'choice'){
+    const opts = item.options.map(o => `
+        <label class="choice">
+          <input type="radio" name="${item.id}" value="${o.value}">
+          <span><span class="choice-title">${escapeHtml(o.label)}</span>${o.desc ? `<span class="choice-desc">${escapeHtml(o.desc)}</span>` : ''}</span>
+        </label>`).join('');
+    field.innerHTML = `<fieldset><legend>${escapeHtml(item.q)}${hint}</legend><div class="choice-group">${opts}</div></fieldset>`;
+  } else {
+    field.innerHTML = `
+      <label for="${item.id}">${escapeHtml(item.q)}${hint}</label>
+      <textarea id="${item.id}"></textarea>
+    `;
+  }
+  section.appendChild(field);
+}
+
+function choiceValue(id){
+  const c = document.querySelector(`input[name="${id}"]:checked`);
+  return c ? c.value : '';
+}
+function isVisible(item){
+  return !item.showIf || choiceValue(item.showIf.id) === item.showIf.value;
+}
+function answerOf(item){
+  if(item.type === 'choice'){
+    const o = item.options.find(o => o.value === choiceValue(item.id));
+    return o ? o.label : '';
+  }
+  return document.getElementById(item.id).value.trim();
+}
+function updateConditionals(){
+  document.querySelectorAll('[data-show-if]').forEach(f => {
+    f.hidden = choiceValue(f.dataset.showIf) !== f.dataset.showValue;
+  });
+}
+
+const formEl = document.getElementById('q-form');
+
+SECTIONS.forEach((sec, sIdx) => {
+  const section = document.createElement('section');
+  section.className = 'q-section';
+  section.dataset.breakerIndex = sIdx + 1; // +1 because breaker 0 = contact card
+
+  const head = document.createElement('div');
+  head.className = 'sec-head';
+  head.innerHTML = `<span class="sec-num">${sIdx+1}</span><p class="sec-title">${escapeHtml(sec.title)}</p>`;
+  section.appendChild(head);
+
+  sec.items.forEach(item => renderItem(item, section));
+
+  formEl.appendChild(section);
+});
+
+// ============================================================
+// PROGRESSION (breakers)
+// ============================================================
+const breakerBlocks = [
+  document.querySelector('.info-card'),
+  ...document.querySelectorAll('.q-section')
+];
+
+function updateBreakers(){
+  breakerBlocks.forEach((block, idx) => {
+    const inputs = block.querySelectorAll('input, textarea');
+    let filled = false;
+    inputs.forEach(inp => {
+      if(inp.closest('.field[hidden]')) return;
+      if(inp.type === 'radio' ? inp.checked : inp.value.trim() !== '') filled = true;
+    });
+    const breaker = document.querySelector(`.breaker[data-breaker="${idx}"]`);
+    if(breaker){ breaker.classList.toggle('on', filled); }
+  });
+}
+
+document.addEventListener('input', updateBreakers);
+document.addEventListener('change', () => { updateConditionals(); updateBreakers(); });
+updateBreakers();
+
+// ============================================================
+// VALIDATION + GENERATION PDF + MAILTO
+// ============================================================
+const statusMsg = document.getElementById('status-msg');
+const overlay = document.getElementById('overlay');
+document.getElementById('overlay-close').addEventListener('click', () => overlay.classList.remove('show'));
+
+function clearRequiredStyles(){
+  document.querySelectorAll('.required-empty').forEach(el => el.classList.remove('required-empty'));
+}
+
+function validate(){
+  clearRequiredStyles();
+  const required = [
+    document.getElementById('f-entreprise'),
+    document.getElementById('f-contact'),
+    document.getElementById('f-tel'),
+  ];
+  let firstInvalid = null;
+  required.forEach(el => {
+    if(el.value.trim() === ''){
+      el.classList.add('required-empty');
+      if(!firstInvalid) firstInvalid = el;
+    }
+  });
+  return firstInvalid;
+}
+
+function buildPdf(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const marginX = 48;
+  let y = 56;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = doc.internal.pageSize.getWidth() - marginX*2;
+
+  function ensureSpace(lines){
+    const needed = lines * 14 + 10;
+    if(y + needed > pageHeight - 48){
+      doc.addPage();
+      y = 56;
+    }
+  }
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text(PDF_TITLE, marginX, y);
+  y += 22;
+
+  const entreprise = document.getElementById('f-entreprise').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+  const tel = document.getElementById('f-tel').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const ville = document.getElementById('f-ville').value.trim();
+  const secteur = document.getElementById('f-secteur').value.trim();
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10.5);
+  const today = new Date().toLocaleDateString('fr-FR');
+  doc.text(`Date : ${today}`, marginX, y); y += 20;
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text('Coordonnées', marginX, y); y += 16;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10.5);
+  [
+    ['Entreprise', entreprise || '—'],
+    ['Contact', contact || '—'],
+    ['Téléphone / WhatsApp', tel || '—'],
+    ['Email', email || '—'],
+    ['Ville / zone', ville || '—'],
+    ['Secteur d\'activité', secteur || '—'],
+  ].forEach(([label,val]) => {
+    doc.text(`${label} : ${val}`, marginX, y);
+    y += 15;
+  });
+  y += 10;
+
+  SECTIONS.forEach((sec, sIdx) => {
+    ensureSpace(2);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(12.5);
+    doc.text(`${sIdx+1}. ${sec.title}`, marginX, y);
+    y += 18;
+
+    sec.items.filter(isVisible).forEach(item => {
+      const answer = answerOf(item) || '—';
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10.5);
+      const qLines = doc.splitTextToSize(item.q, maxWidth);
+      ensureSpace(qLines.length);
+      doc.text(qLines, marginX, y);
+      y += qLines.length * 13 + 3;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10.5);
+      const aLines = doc.splitTextToSize(answer, maxWidth);
+      ensureSpace(aLines.length);
+      doc.text(aLines, marginX, y);
+      y += aLines.length * 13 + 12;
+    });
+    y += 6;
+  });
+
+  return doc;
+}
+
+function resetForm(){
+  document.querySelectorAll('.info-card input, .info-card textarea, #q-form textarea')
+    .forEach(el => { el.value = ''; });
+  document.querySelectorAll('#q-form input[type=radio]').forEach(r => { r.checked = false; });
+  updateConditionals();
+  clearRequiredStyles();
+  updateBreakers();
+}
+
+function slugify(str){
+  return (str || 'entreprise')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/(^-|-$)/g,'');
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+  const invalid = validate();
+  if(invalid){
+    statusMsg.textContent = 'Complétez les champs obligatoires (*) avant d\'envoyer.';
+    statusMsg.classList.add('error');
+    invalid.scrollIntoView({ behavior:'smooth', block:'center' });
+    invalid.focus();
+    return;
+  }
+  statusMsg.classList.remove('error');
+
+  const entreprise = document.getElementById('f-entreprise').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+
+  // 1. Générer et télécharger le PDF
+  const doc = buildPdf();
+  const filename = `cadrage-${slugify(entreprise)}.pdf`;
+  doc.save(filename);
+
+  // 1bis. Vider le formulaire une fois le PDF téléchargé
+  resetForm();
+
+  // 2. Ouvrir le client mail avec un message pré-rempli
+  const subject = `${EMAIL_SUBJECT_PREFIX} ${entreprise}`;
+  const body =
+`Bonjour,
+
+Voici les réponses au questionnaire de cadrage pour ${entreprise}.
+
+Merci de joindre le fichier PDF téléchargé (${filename}) avant d'envoyer ce message.
+
+Contact : ${contact}
+Entreprise : ${entreprise}`;
+
+  const mailtoUrl = `mailto:${DEST_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  setTimeout(() => {
+    window.location.href = mailtoUrl;
+    overlay.classList.add('show');
+  }, 400);
+
+  statusMsg.textContent = 'PDF téléchargé. Ouverture de votre messagerie…';
+});
+</script>
+
+</body>
+</html>

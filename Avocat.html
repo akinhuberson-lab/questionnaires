@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Questionnaire de cadrage — Site cabinet d'avocats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --navy:#10233F;
+    --navy-2:#173257;
+    --paper:#F6F5F1;
+    --card:#FFFFFF;
+    --amber:#EFA23C;
+    --amber-dark:#C97F1F;
+    --ink:#181B20;
+    --muted:#68707C;
+    --line:#E4E1D8;
+    --breaker-off:#D8D4C8;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    line-height:1.5;
+    padding-bottom:110px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px;}
+
+  /* ---- Header ---- */
+  header.top{
+    background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%);
+    color:#fff;
+    padding:36px 0 30px;
+    border-bottom:4px solid var(--amber);
+  }
+  header.top .eyebrow{
+    font-family:'Space Grotesk',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.14em;
+    font-size:11.5px;
+    color:var(--amber);
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  header.top h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(24px,4vw,32px);
+    font-weight:700;
+    margin:0 0 8px;
+    letter-spacing:-.01em;
+  }
+  header.top p{
+    margin:0;
+    color:#C7D0DE;
+    font-size:14.5px;
+    max-width:58ch;
+  }
+  header.top p + p{margin-top:8px;}
+
+  /* ---- Breaker progress strip ---- */
+  .breaker-panel{
+    max-width:760px;
+    margin:-20px auto 0;
+    padding:0 20px;
+  }
+  .breaker-strip{
+    background:var(--navy);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    display:flex;
+    gap:5px;
+    align-items:center;
+    box-shadow:0 8px 24px -10px rgba(16,35,63,.45);
+  }
+  .breaker{
+    flex:1;
+    height:22px;
+    border-radius:3px;
+    background:var(--breaker-off);
+    position:relative;
+    transition:background .25s ease, box-shadow .25s ease;
+  }
+  .breaker::after{
+    content:"";
+    position:absolute;
+    top:3px; bottom:3px; left:3px;
+    width:5px;
+    border-radius:2px;
+    background:rgba(0,0,0,.15);
+  }
+  .breaker.on{
+    background:var(--amber);
+    box-shadow:0 0 0 2px rgba(239,162,60,.25), 0 0 10px rgba(239,162,60,.55);
+  }
+  .breaker.on::after{ background:rgba(0,0,0,.25); }
+  .breaker-label{
+    font-family:'Space Grotesk',sans-serif;
+    color:#8FA0BC;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    white-space:nowrap;
+    padding-right:10px;
+    border-right:1px solid rgba(255,255,255,.15);
+    margin-right:4px;
+  }
+
+  /* ---- Sections ---- */
+  main{padding-top:30px;}
+  .info-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:24px 24px 8px;
+    margin-bottom:26px;
+  }
+  .info-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px 18px;
+  }
+  .info-grid .full{grid-column:1/-1;}
+  section.q-section{
+    margin-bottom:26px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px 10px;
+  }
+  .sec-head{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:16px;
+    padding-bottom:12px;
+    border-bottom:1px solid var(--line);
+  }
+  .sec-num{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:#fff;
+    background:var(--navy);
+    border-radius:5px;
+    padding:3px 8px;
+    flex-shrink:0;
+  }
+  .sec-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--navy);
+    margin:0;
+  }
+  .sec-note{
+    font-size:13px;
+    color:var(--ink);
+    background:#FBF4E7;
+    border-left:3px solid var(--amber);
+    border-radius:0 6px 6px 0;
+    padding:10px 12px;
+    margin:0 0 16px;
+  }
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .field .hint{
+    display:block;
+    font-weight:400;
+    font-size:12.5px;
+    color:var(--muted);
+    font-style:italic;
+    margin-top:3px;
+  }
+  input[type=text], input[type=tel], input[type=email], textarea{
+    width:100%;
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    background:#FCFBF9;
+    border:1px solid var(--line);
+    border-radius:7px;
+    padding:10px 12px;
+    resize:vertical;
+    transition:border-color .15s, background .15s;
+  }
+  textarea{min-height:64px;}
+  input:focus, textarea:focus{
+    outline:none;
+    border-color:var(--amber-dark);
+    background:#fff;
+    box-shadow:0 0 0 3px rgba(239,162,60,.18);
+  }
+  input.required-empty, textarea.required-empty{
+    border-color:#C0473C;
+    background:#FCF3F2;
+  }
+
+  /* ---- Choix (boutons) et questions conditionnelles ---- */
+  .field fieldset{border:0;padding:0;margin:0;min-width:0;}
+  .field legend{
+    display:block;
+    padding:0;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:5px;
+  }
+  .choice-group{display:grid;gap:10px;margin-top:8px;}
+  .field label.choice{
+    display:flex;
+    margin-bottom:0;
+    gap:12px;
+    align-items:flex-start;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    background:#FCFBF9;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .choice:hover{border-color:var(--amber-dark);}
+  .choice input{margin:3px 0 0;accent-color:var(--amber-dark);width:17px;height:17px;flex-shrink:0;}
+  .choice:has(input:checked){
+    border-color:var(--amber-dark);
+    background:#FBF4E7;
+    box-shadow:inset 0 0 0 1px var(--amber-dark);
+  }
+  .choice-title{display:block;font-weight:600;font-size:14px;color:var(--ink);}
+  .choice-desc{display:block;font-weight:400;font-size:12.8px;color:var(--muted);margin-top:2px;}
+  .field.followup{margin-left:14px;padding-left:14px;border-left:3px solid var(--amber);}
+  .field[hidden]{display:none;}
+
+  /* ---- Submit bar ---- */
+  .submit-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:var(--navy);
+    border-top:3px solid var(--amber);
+    padding:14px 20px;
+    display:flex;
+    justify-content:center;
+    z-index:20;
+  }
+  .submit-bar-inner{
+    max-width:760px;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+  }
+  #status-msg{
+    color:#C7D0DE;
+    font-size:13px;
+    max-width:340px;
+  }
+  #status-msg.error{color:#F3A79E;font-weight:600;}
+  button#send-btn{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    color:var(--navy);
+    background:var(--amber);
+    border:none;
+    border-radius:7px;
+    padding:13px 22px;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s, transform .1s;
+  }
+  button#send-btn:hover{background:#F5B357;}
+  button#send-btn:active{transform:translateY(1px);}
+  button:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+
+  /* ---- Success overlay ---- */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(16,35,63,.72);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .overlay-card{
+    background:#fff;
+    border-radius:12px;
+    max-width:420px;
+    padding:28px 26px;
+    text-align:left;
+  }
+  .overlay-card h2{
+    font-family:'Space Grotesk',sans-serif;
+    color:var(--navy);
+    font-size:19px;
+    margin:0 0 10px;
+  }
+  .overlay-card ol{
+    margin:0 0 18px;
+    padding-left:20px;
+    color:var(--ink);
+    font-size:14px;
+  }
+  .overlay-card li{margin-bottom:6px;}
+  .overlay-card button{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:7px;
+    padding:10px 18px;
+    cursor:pointer;
+    font-size:13.5px;
+  }
+
+  @media (max-width:560px){
+    .info-grid{grid-template-columns:1fr;}
+    .breaker-strip{gap:3px;padding:12px;}
+    .breaker-label{display:none;}
+    .submit-bar-inner{flex-direction:column;align-items:stretch;}
+    #status-msg{max-width:none;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <p class="eyebrow">Cadrage projet — site web cabinet d'avocats</p>
+    <h1>Parlons de votre cabinet</h1>
+    <p>Ce questionnaire nous permet de définir l'objectif, le contenu et la structure du futur site de votre cabinet. Comptez environ 15 à 20 minutes.</p>
+    <p>Le site sera conçu pour respecter le règlement intérieur du Barreau de Côte d'Ivoire et être soumis à la validation du Conseil de l'Ordre.</p>
+  </div>
+</header>
+
+<div class="breaker-panel">
+  <div class="breaker-strip" id="breaker-strip">
+    <span class="breaker-label">Progression</span>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <div class="info-card">
+    <div class="sec-head">
+      <span class="sec-num">Contact</span>
+      <p class="sec-title">Vos coordonnées</p>
+    </div>
+    <div class="info-grid">
+      <div class="field">
+        <label for="f-cabinet">Nom du cabinet *</label>
+        <input type="text" id="f-cabinet" required>
+      </div>
+      <div class="field">
+        <label for="f-contact">Nom de l'avocat référent pour le projet *</label>
+        <input type="text" id="f-contact" required>
+      </div>
+      <div class="field">
+        <label for="f-tel">Téléphone / WhatsApp *</label>
+        <input type="tel" id="f-tel" required>
+      </div>
+      <div class="field">
+        <label for="f-email">Adresse email</label>
+        <input type="email" id="f-email">
+      </div>
+      <div class="field">
+        <label for="f-adresse">Adresse du cabinet</label>
+        <input type="text" id="f-adresse" placeholder="Ex. Plateau, Abidjan">
+      </div>
+      <div class="field">
+        <label for="f-structure">Structure d'exercice</label>
+        <input type="text" id="f-structure" placeholder="Ex. exercice individuel, SCPA, association...">
+      </div>
+    </div>
+  </div>
+
+  <form id="q-form"></form>
+
+</main>
+
+<div class="submit-bar">
+  <div class="submit-bar-inner">
+    <span id="status-msg">Vos réponses restent sur cet appareil tant que vous n'avez pas cliqué sur Envoyer.</span>
+    <button id="send-btn" type="button">Télécharger le PDF et envoyer</button>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+  <div class="overlay-card">
+    <h2 id="overlay-title">PDF téléchargé ✓</h2>
+    <ol>
+      <li>Votre boîte mail va s'ouvrir avec un message pré-rempli.</li>
+      <li>Joignez le fichier PDF qui vient d'être téléchargé (glisser-déposer ou bouton « joindre »).</li>
+      <li>Vérifiez, puis cliquez sur Envoyer dans votre messagerie.</li>
+    </ol>
+    <button id="overlay-close">Compris</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION — à adapter avant diffusion au client
+// ============================================================
+const DEST_EMAIL   = "akinhuberson@gmail.com"; // email de réception des questionnaires
+const EMAIL_SUBJECT_PREFIX = "Cadrage site cabinet d'avocats —";
+const PDF_TITLE = "Cadrage projet — site web cabinet d'avocats";
+
+// ============================================================
+// CONTENU DU QUESTIONNAIRE
+// ============================================================
+const SECTIONS = [
+  {
+    title: "Le cabinet",
+    items: [
+      { id:"q1_1", q:"Depuis quand le cabinet existe-t-il, et sous quelle forme (exercice individuel, SCPA, association, cabinets groupés) ?" },
+      { id:"q1_2", q:"Combien d'avocats le cabinet compte-t-il (associés, collaborateurs) ?", hint:"Les avocats stagiaires ne figurent pas sur le site." },
+      { id:"q1_3", q:"La dénomination et le logo du cabinet ont-ils déjà été approuvés par le Conseil de l'Ordre ?" },
+      { id:"q1_4", q:"Le cabinet a-t-il des bureaux secondaires, en Côte d'Ivoire ou dans l'espace UEMOA ?" },
+    ]
+  },
+  {
+    title: "Objectif principal du site",
+    items: [
+      { id:"q2_1", q:"Quel est le rôle principal du site : être trouvé par de nouveaux clients, rassurer les clients qui vous sont recommandés, toucher une clientèle internationale, publier vos analyses juridiques, recruter, ou autre chose ?" },
+      { id:"q2_2", q:"Quel est l'objectif n°1 à atteindre dans les 6 premiers mois après la mise en ligne ?" },
+      { id:"q2_3", q:"Le cabinet a-t-il déjà un site ? Si oui, quelle est son adresse, et qu'est-ce qui ne vous convient pas ?" },
+    ]
+  },
+  {
+    title: "Domaines d'intervention",
+    items: [
+      { id:"q3_1", q:"Dans quels domaines du droit le cabinet intervient-il ?", hint:"Ex. affaires et sociétés (OHADA), arbitrage, travail, famille, foncier et immobilier, pénal, recouvrement, fiscal..." },
+      { id:"q3_2", q:"Quels sont les 3 à 5 domaines à mettre en avant en priorité sur le site ?" },
+      { id:"q3_3", q:"Pour ces domaines, quelles sont les situations les plus fréquentes chez vos clients ?", hint:"Décrites en termes généraux, sans nom ni détail permettant d'identifier un client." },
+      { id:"q3_4", q:"Les avocats du cabinet ont-ils des spécialisations régulièrement acquises, ou des fonctions d'arbitre, de médiateur ou de mandataire à mentionner ?" },
+    ]
+  },
+  {
+    title: "Clientèle et zone géographique",
+    items: [
+      { id:"q4_1", q:"Qui sont vos clients : particuliers, entreprises, institutions, investisseurs étrangers, diaspora ?" },
+      { id:"q4_2", q:"Quelle est votre zone d'intervention : Abidjan (quelles communes ?), intérieur du pays, espace UEMOA, international ?" },
+      { id:"q4_3", q:"Travaillez-vous avec des cabinets correspondants à l'étranger, ou souhaitez-vous en attirer ?" },
+    ]
+  },
+  {
+    title: "L'équipe",
+    items: [
+      { id:"q5_1", q:"Pour chaque avocat à présenter : nom, qualité (associé, collaborateur), année de prestation de serment, formation et titres universitaires, langues, domaines." },
+      { id:"q5_2", q:"Certains avocats ont-ils des distinctions ordinales à mentionner (ancien bâtonnier, membre ou ancien membre du Conseil de l'Ordre, secrétaire de la Conférence) ?" },
+      { id:"q5_3", q:"Disposez-vous de photos professionnelles des avocats (portrait, même fond, même cadrage) ? Sinon, une séance photo est-elle envisageable ?" },
+    ]
+  },
+  {
+    title: "Langues",
+    items: [
+      { id:"q6_1", q:"Le site doit-il exister en anglais ? Dans d'autres langues ?" },
+      { id:"q6_2", q:"Qui rédigera ou relira les textes juridiques traduits ?", hint:"Le cabinet reste responsable des textes publiés dans chaque langue." },
+    ]
+  },
+  {
+    title: "Publications",
+    items: [
+      { id:"q7_1", q:"Avez-vous déjà des notes, articles, interventions ou analyses juridiques publiables ?" },
+      { id:"q7_2", q:"Qui rédigera les futures publications, et à quel rythme (par mois, par trimestre) ?" },
+    ]
+  },
+  {
+    title: "Contact et rendez-vous",
+    items: [
+      { id:"q8_1", q:"Quel canal mettre en avant en priorité : WhatsApp, téléphone, formulaire de contact, email ?" },
+      { id:"q8_rdv", type:"choice", q:"Pour la prise de rendez-vous sur le site, quelle solution choisissez-vous ?", options:[
+        { value:"classique", label:"Formulaire de contact classique", desc:"Le client envoie une demande ; elle arrive par email ou WhatsApp, et vous le recontactez pour fixer l'heure. Inclus dans le site." },
+        { value:"rdv-express", label:"Rendez-vous express", desc:"Logiciel de gestion des rendez-vous, en semi-automatique. Le client réserve en ligne un créneau libre, au cabinet ou en visio ; le cabinet suit tous ses rendez-vous, y compris ceux pris par téléphone, dans un espace secrétariat ; la veille, chaque rappel WhatsApp est prêt et le secrétariat l'envoie en un clic. Option avec abonnement, tarif indiqué dans le devis." },
+      ]},
+      { id:"q8_rdv_a", q:"Comment les rendez-vous sont-ils gérés aujourd'hui (agenda papier, logiciel, secrétariat) ?", showIf:{ id:"q8_rdv", value:"rdv-express" } },
+      { id:"q8_rdv_b", q:"Quels motifs proposer en ligne, avec leur durée ?", hint:"Ex. première consultation en droit des affaires (1 h), suivi de dossier (30 min). Le client indique seulement le domaine du droit, jamais le détail de son affaire ni le nom de la partie adverse.", showIf:{ id:"q8_rdv", value:"rdv-express" } },
+      { id:"q8_rdv_c", q:"Quels avocats reçoivent sur rendez-vous, quels jours, et au cabinet, en visio ou les deux ?", showIf:{ id:"q8_rdv", value:"rdv-express" } },
+      { id:"q8_rdv_d", q:"Qui enverra les rappels la veille, et depuis quel numéro WhatsApp ?", hint:"Les messages portent uniquement sur un rendez-vous demandé par le client : aucun démarchage.", showIf:{ id:"q8_rdv", value:"rdv-express" } },
+      { id:"q8_2", q:"Qui reçoit et traite les demandes (secrétariat, avocat référent) ? Quels sont vos horaires ?" },
+      { id:"q8_3", q:"Le premier rendez-vous est-il payant ou gratuit ? Comment souhaitez-vous présenter vos honoraires sur le site ?", hint:"Le site explique le principe de la convention d'honoraires, sans afficher de montant." },
+    ]
+  },
+  {
+    title: "Conformité et validation par l'Ordre",
+    note: "Le règlement intérieur du Barreau interdit sur le site les termes élogieux ou comparatifs, les noms et témoignages de clients, les résultats d'affaires et toute forme de démarchage. Le site est conçu en conséquence.",
+    items: [
+      { id:"q9_1", q:"Le cabinet a-t-il déjà soumis un site ou un autre support numérique au Conseil de l'Ordre ? Qui se chargera du dépôt de la maquette ?" },
+      { id:"q9_2", q:"Souhaitez-vous des liens vers des sites externes (textes officiels, OHADA, Journal officiel, organisations professionnelles) ? Lesquels ?", hint:"Chaque lien externe doit être déclaré au Conseil de l'Ordre." },
+      { id:"q9_3", q:"Le cabinet a-t-il des pages sur les réseaux sociaux (LinkedIn, Facebook) ? Ont-elles été déclarées à l'Ordre ?" },
+    ]
+  },
+  {
+    title: "Budget, délai et maintenance",
+    items: [
+      { id:"q10_1", q:"Quel est le budget disponible pour ce projet ?" },
+      { id:"q10_2", q:"Quel est le délai souhaité de mise en ligne ?", hint:"Prévoir le temps de validation par le Conseil de l'Ordre." },
+      { id:"q10_3", q:"Qui mettra le site à jour après le lancement (publications, équipe, coordonnées) ?" },
+      { id:"q10_4", q:"Avez-vous déjà un nom de domaine ou un hébergement ? Les comptes doivent-ils être au nom du cabinet ?", hint:"Le nom de domaine doit contenir le nom du cabinet ou de l'avocat, éventuellement avec le mot « avocat »." },
+    ]
+  },
+  {
+    title: "Identité visuelle et contenus existants",
+    items: [
+      { id:"q11_1", q:"Avez-vous une charte graphique (logo, couleurs, papier à en-tête, plaquette) ? Doit-elle évoluer ?" },
+      { id:"q11_2", q:"Avez-vous d'autres textes ou visuels déjà prêts (présentation du cabinet, CV, photos des locaux) ?" },
+    ]
+  },
+  {
+    title: "Référencement (SEO de base)",
+    items: [
+      { id:"q12_1", q:"Quand un client vous cherche sur Google, quels mots utiliserait-il selon vous ? (ex. « avocat droit du travail Abidjan », « OHADA law firm Ivory Coast »)" },
+      { id:"q12_2", q:"Avez-vous une fiche Google Business Profile (Google Maps) pour le cabinet ? Si oui, sous quel nom ?" },
+      { id:"q12_3", q:"Connaissez-vous des cabinets déjà bien visibles sur Google dans vos domaines ? Lesquels ?" },
+      { id:"q12_4", q:"Quelles communes ou villes souhaitez-vous cibler en priorité (ex. Plateau, Cocody, Marcory, Yamoussoukro, San-Pédro) ?" },
+    ]
+  },
+];
+
+// ============================================================
+// RENDU DU FORMULAIRE
+// ============================================================
+function escapeHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+
+// Une question = zone de texte, ou choix par boutons (type:"choice").
+// Une question avec showIf n'apparaît que si le choix indiqué est coché.
+function renderItem(item, section){
+  const field = document.createElement('div');
+  field.className = 'field' + (item.showIf ? ' followup' : '');
+  if(item.showIf){
+    field.dataset.showIf = item.showIf.id;
+    field.dataset.showValue = item.showIf.value;
+    field.hidden = true;
+  }
+  const hint = item.hint ? `<span class="hint">${escapeHtml(item.hint)}</span>` : '';
+  if(item.type === 'choice'){
+    const opts = item.options.map(o => `
+        <label class="choice">
+          <input type="radio" name="${item.id}" value="${o.value}">
+          <span><span class="choice-title">${escapeHtml(o.label)}</span>${o.desc ? `<span class="choice-desc">${escapeHtml(o.desc)}</span>` : ''}</span>
+        </label>`).join('');
+    field.innerHTML = `<fieldset><legend>${escapeHtml(item.q)}${hint}</legend><div class="choice-group">${opts}</div></fieldset>`;
+  } else {
+    field.innerHTML = `
+      <label for="${item.id}">${escapeHtml(item.q)}${hint}</label>
+      <textarea id="${item.id}"></textarea>
+    `;
+  }
+  section.appendChild(field);
+}
+
+function choiceValue(id){
+  const c = document.querySelector(`input[name="${id}"]:checked`);
+  return c ? c.value : '';
+}
+function isVisible(item){
+  return !item.showIf || choiceValue(item.showIf.id) === item.showIf.value;
+}
+function answerOf(item){
+  if(item.type === 'choice'){
+    const o = item.options.find(o => o.value === choiceValue(item.id));
+    return o ? o.label : '';
+  }
+  return document.getElementById(item.id).value.trim();
+}
+function updateConditionals(){
+  document.querySelectorAll('[data-show-if]').forEach(f => {
+    f.hidden = choiceValue(f.dataset.showIf) !== f.dataset.showValue;
+  });
+}
+
+const formEl = document.getElementById('q-form');
+
+SECTIONS.forEach((sec, sIdx) => {
+  const section = document.createElement('section');
+  section.className = 'q-section';
+
+  const head = document.createElement('div');
+  head.className = 'sec-head';
+  head.innerHTML = `<span class="sec-num">${sIdx+1}</span><p class="sec-title">${escapeHtml(sec.title)}</p>`;
+  section.appendChild(head);
+
+  if(sec.note){
+    const note = document.createElement('p');
+    note.className = 'sec-note';
+    note.textContent = sec.note;
+    section.appendChild(note);
+  }
+
+  sec.items.forEach(item => renderItem(item, section));
+
+  formEl.appendChild(section);
+});
+
+// ============================================================
+// PROGRESSION (breakers) — un par bloc, généré automatiquement
+// ============================================================
+const breakerBlocks = [
+  document.querySelector('.info-card'),
+  ...document.querySelectorAll('.q-section')
+];
+const strip = document.getElementById('breaker-strip');
+breakerBlocks.forEach((_, idx) => {
+  const b = document.createElement('div');
+  b.className = 'breaker';
+  b.dataset.breaker = idx;
+  strip.appendChild(b);
+});
+
+function updateBreakers(){
+  breakerBlocks.forEach((block, idx) => {
+    const inputs = block.querySelectorAll('input, textarea');
+    let filled = false;
+    inputs.forEach(inp => {
+      if(inp.closest('.field[hidden]')) return;
+      if(inp.type === 'radio' ? inp.checked : inp.value.trim() !== '') filled = true;
+    });
+    const breaker = strip.querySelector(`.breaker[data-breaker="${idx}"]`);
+    if(breaker){ breaker.classList.toggle('on', filled); }
+  });
+}
+
+document.addEventListener('input', updateBreakers);
+document.addEventListener('change', () => { updateConditionals(); updateBreakers(); });
+updateBreakers();
+
+// ============================================================
+// VALIDATION + GENERATION PDF + MAILTO
+// ============================================================
+const statusMsg = document.getElementById('status-msg');
+const overlay = document.getElementById('overlay');
+document.getElementById('overlay-close').addEventListener('click', () => overlay.classList.remove('show'));
+
+function clearRequiredStyles(){
+  document.querySelectorAll('.required-empty').forEach(el => el.classList.remove('required-empty'));
+}
+
+function validate(){
+  clearRequiredStyles();
+  const required = [
+    document.getElementById('f-cabinet'),
+    document.getElementById('f-contact'),
+    document.getElementById('f-tel'),
+  ];
+  let firstInvalid = null;
+  required.forEach(el => {
+    if(el.value.trim() === ''){
+      el.classList.add('required-empty');
+      if(!firstInvalid) firstInvalid = el;
+    }
+  });
+  return firstInvalid;
+}
+
+// Les polices standard du PDF ne connaissent pas certains caractères
+// (apostrophe typographique, guillemets anglais, « Mᵉ »...) : on les remplace.
+function pdfSafe(str){
+  return String(str)
+    .replace(/[‘’ʼ]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/ᵉ/g, 'e')
+    .replace(/[–—]/g, '-')
+    .replace(/…/g, '...')
+    .replace(/[  ]/g, ' ');
+}
+
+function buildPdf(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'a4' });
+  const marginX = 48;
+  let y = 56;
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const maxWidth = doc.internal.pageSize.getWidth() - marginX*2;
+
+  function ensureSpace(lines){
+    const needed = lines * 14 + 10;
+    if(y + needed > pageHeight - 48){
+      doc.addPage();
+      y = 56;
+    }
+  }
+
+  function val(id){ return pdfSafe(document.getElementById(id).value.trim()); }
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text(pdfSafe(PDF_TITLE), marginX, y);
+  y += 22;
+
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10.5);
+  const today = new Date().toLocaleDateString('fr-FR');
+  doc.text(`Date : ${today}`, marginX, y); y += 20;
+
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(12);
+  doc.text('Coordonnées', marginX, y); y += 16;
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(10.5);
+  [
+    ['Cabinet', val('f-cabinet') || '-'],
+    ['Avocat référent', val('f-contact') || '-'],
+    ['Téléphone / WhatsApp', val('f-tel') || '-'],
+    ['Email', val('f-email') || '-'],
+    ['Adresse', val('f-adresse') || '-'],
+    ["Structure d'exercice", val('f-structure') || '-'],
+  ].forEach(([label,v]) => {
+    const lines = doc.splitTextToSize(`${label} : ${v}`, maxWidth);
+    ensureSpace(lines.length);
+    doc.text(lines, marginX, y);
+    y += lines.length * 13 + 2;
+  });
+  y += 10;
+
+  SECTIONS.forEach((sec, sIdx) => {
+    ensureSpace(2);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(12.5);
+    doc.text(pdfSafe(`${sIdx+1}. ${sec.title}`), marginX, y);
+    y += 18;
+
+    sec.items.filter(isVisible).forEach(item => {
+      const answer = pdfSafe(answerOf(item)) || '-';
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(10.5);
+      const qLines = doc.splitTextToSize(pdfSafe(item.q), maxWidth);
+      ensureSpace(qLines.length);
+      doc.text(qLines, marginX, y);
+      y += qLines.length * 13 + 3;
+
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10.5);
+      const aLines = doc.splitTextToSize(answer, maxWidth);
+      aLines.forEach(line => {
+        ensureSpace(1);
+        doc.text(line, marginX, y);
+        y += 13;
+      });
+      y += 12;
+    });
+    y += 6;
+  });
+
+  return doc;
+}
+
+function resetForm(){
+  document.querySelectorAll('.info-card input, #q-form textarea')
+    .forEach(el => { el.value = ''; });
+  document.querySelectorAll('#q-form input[type=radio]').forEach(r => { r.checked = false; });
+  updateConditionals();
+  clearRequiredStyles();
+  updateBreakers();
+}
+
+function slugify(str){
+  return (str || 'cabinet')
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,'-')
+    .replace(/(^-|-$)/g,'');
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+  const invalid = validate();
+  if(invalid){
+    statusMsg.textContent = "Complétez les champs obligatoires (*) avant d'envoyer.";
+    statusMsg.classList.add('error');
+    invalid.scrollIntoView({ behavior:'smooth', block:'center' });
+    invalid.focus();
+    return;
+  }
+  statusMsg.classList.remove('error');
+
+  const cabinet = document.getElementById('f-cabinet').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+
+  // 1. Générer et télécharger le PDF
+  const doc = buildPdf();
+  const filename = `cadrage-${slugify(cabinet)}.pdf`;
+  doc.save(filename);
+
+  // 1bis. Vider le formulaire une fois le PDF téléchargé
+  resetForm();
+
+  // 2. Ouvrir le client mail avec un message pré-rempli
+  const subject = `${EMAIL_SUBJECT_PREFIX} ${cabinet}`;
+  const body =
+`Bonjour,
+
+Voici les réponses au questionnaire de cadrage pour le cabinet ${cabinet}.
+
+Merci de joindre le fichier PDF téléchargé (${filename}) avant d'envoyer ce message.
+
+Avocat référent : ${contact}
+Cabinet : ${cabinet}`;
+
+  const mailtoUrl = `mailto:${DEST_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+  setTimeout(() => {
+    window.location.href = mailtoUrl;
+    overlay.classList.add('show');
+  }, 400);
+
+  statusMsg.textContent = 'PDF téléchargé. Ouverture de votre messagerie…';
+});
+</script>
+
+</body>
+</html>
